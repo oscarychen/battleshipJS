@@ -24,4 +24,3 @@ const playerA = new Player(1);
 const playerB = new Player(2);
 const yard = new ShipYard(playerA);
 yard.initialize();
-

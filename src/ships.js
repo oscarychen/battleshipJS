@@ -1,4 +1,4 @@
-class Ship {
+export class Ship {
   constructor(shipYard, shipType) {
     this.shipYard = shipYard;
     this.shipType = shipType;
@@ -11,6 +11,6 @@ class Ship {
   }
 }
 
-class ShipL extends Ship {
+export class ShipL extends Ship {
   constructor() {}
 }
