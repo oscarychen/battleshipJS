@@ -1,0 +1,39 @@
+{
+  "name": "battleshipjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --progress --colors --watch",
+    "build": "webpack --progress --colors",
+    "start": "webpack-dev-server --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/airoscar/battleshipJS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/airoscar/battleshipJS/issues"
+  },
+  "homepage": "https://github.com/airoscar/battleshipJS#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.4",
+    "@babel/node": "^7.5.0",
+    "@babel/preset-env": "^7.5.4",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.4.4",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.2"
+  },
+  "dependencies": {
+    "babel-loader": "^8.0.6",
+    "babel-register": "^6.26.0",
+    "css-loader": "^3.0.0",
+    "style-loader": "^0.23.1"
+  }
+}

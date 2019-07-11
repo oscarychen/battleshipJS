@@ -1,0 +1,5 @@
+export const POSITION_DAMAGED = "POSITION_DAMAGED";
+export const POSITION_OCCUPIED = "POSITION_OCCUPIED";
+export const POSITION_EMPTY = "POSITION_EMPTY";
+export const YARD_WIDTH = 8;
+export const YARD_HEIGHT = 8;
