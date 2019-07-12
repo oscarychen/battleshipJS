@@ -1,9 +1,12 @@
 import { ShipYard } from "./gameBoard";
 import { Player } from "./player";
-// const canvas = document.getElementById("gameCanvas");
+import { Painter } from "./painter";
+import { CANVAS_HTML_ID_A } from "./constants";
+
+// const canvas = document.getElementById("gameCanvasA");
 // const ctx = canvas.getContext("2d");
 // ctx.beginPath();
-// ctx.rect(20, 40, 50, 50);
+// ctx.rect(20, 20, 10, 110);
 // ctx.fillStyle = "#FF0000";
 // ctx.fill();
 // ctx.closePath();
@@ -16,11 +19,15 @@ import { Player } from "./player";
 
 // ctx.beginPath();
 // ctx.rect(160, 10, 100, 40);
-// ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
+// ctx.fillStyle = "#FF0000";
+// ctx.fill();
+// ctx.strokeStyle = "rgba(10, 10, 255, 5)";
 // ctx.stroke();
 // ctx.closePath();
 
 const playerA = new Player(1);
 const playerB = new Player(2);
-const yard = new ShipYard(playerA);
-yard.initialize();
+const yardA = new ShipYard(playerA);
+const yardB = new ShipYard(playerB);
+const painterA = new Painter(CANVAS_HTML_ID_A, yardA);
+painterA.draw();
