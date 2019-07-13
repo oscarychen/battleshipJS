@@ -36,8 +36,7 @@ export class Test {
 
   yardTest() {
     console.log("ShipYard: testing addShipToYard()...");
-    const player = new Player(1);
-    const yard = new ShipYard(player);
+    const yard = new ShipYard();
     const ship = new Ship(0, 0, SHIP_TYPE_1);
 
     yard.addShipToYard(ship);

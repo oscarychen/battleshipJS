@@ -2,15 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="index.css" />
     <title>BattleshipJS</title>
   </head>
   <body>
-    <canvas id="gameCanvasA" width="400" height="400" style="border:1px solid #c3c3c3;">
-      Your browser does not support the canvas element.
-    </canvas>
-    <canvas id="gameCanvasB" width="400" height="400" style="border:1px solid #c3c3c3;">
-      Your browser does not support the canvas element.
-    </canvas>
+    <div class="top">
+      <p>Battleships</p>
+      <button id="startGame">Start</button>
+    </div>
+
+    <div class="mainContainer">
+      <div class="playerContainer">
+        <h2>Player 1</h2>
+        <div id="p1Score">Score:</div>
+        <div id="p1ShotsFired">Shots Fired:</div>
+        <canvas id="gameCanvasA" width="400" height="400" style="border:1px solid #c3c3c3;"> </canvas>
+      </div>
+      <div class="playerContainer">
+        <h2>Player 2</h2>
+        <div id="p2Score">Score:</div>
+        <div id="p2ShotsFired">Shots Fired:</div>
+        <canvas id="gameCanvasB" width="400" height="400" style="border:1px solid #c3c3c3;"> </canvas>
+      </div>
+    </div>
     <script src="./build/bundle.js"></script>
   </body>
 </html>

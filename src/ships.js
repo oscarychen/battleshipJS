@@ -10,8 +10,13 @@ import { Cell } from "./gameBoard";
 
 export class Ship {
   constructor(x, y, type) {
+    this.type = type;
     this.cells = [];
     this.initialize(x, y, type);
+  }
+
+  getType() {
+    return this.type;
   }
 
   /**

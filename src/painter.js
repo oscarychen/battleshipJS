@@ -1,15 +1,15 @@
-import { shipYard, Cell } from "./ships";
 import {
-  POSITION_DAMAGED,
   POSITION_EMPTY,
   POSITION_OCCUPIED,
-  CANVAS_HTML_ID_A,
   CELL_SIZE,
   COLOR_CELL_HIT,
   COLOR_CELL_EMPTY,
   COLOR_CELL_OCCUPIED,
   POSITION_EMPTY_HIT,
-  POSITION_OCCUPIED_HIT
+  POSITION_OCCUPIED_HIT,
+  DISPLAY_SELF,
+  YARD_WIDTH,
+  YARD_HEIGHT
 } from "./constants";
 
 /**
@@ -20,6 +20,14 @@ export class Painter {
     this.canvas = document.getElementById(canvasElementId);
     this.ctx = this.canvas.getContext("2d");
     this.yard = shipYard;
+    this.mode;
+  }
+
+  /**
+   * Used to set the display mode, to show player and opponent different views during their turns
+   */
+  setMode(mode) {
+    this.mode = mode;
   }
 
   /**
@@ -30,6 +38,14 @@ export class Painter {
     cells.forEach(cell => {
       this.drawCell(cell.getX(), cell.getY(), cell.getStatus());
     });
+  }
+
+  undraw() {
+    this.ctx.beginPath();
+    this.ctx.rect(0, 0, YARD_WIDTH * CELL_SIZE, YARD_HEIGHT * CELL_SIZE);
+    this.ctx.fillStyle = COLOR_CELL_EMPTY;
+    this.ctx.fill();
+    this.ctx.closePath();
   }
 
   /**
@@ -62,7 +78,11 @@ export class Painter {
         this.drawFillSquare(a, b, w, h, COLOR_CELL_EMPTY);
         break;
       case POSITION_OCCUPIED:
-        this.drawFillSquare(a, b, w, h, COLOR_CELL_OCCUPIED);
+        if (this.mode === DISPLAY_SELF) {
+          this.drawFillSquare(a, b, w, h, COLOR_CELL_OCCUPIED);
+        } else {
+          this.drawFillSquare(a, b, w, h, COLOR_CELL_EMPTY);
+        }
         break;
       default:
         console.log("Painter.drawCell(): Unknown type.");

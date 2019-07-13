@@ -5,7 +5,6 @@ import {
   POSITION_OCCUPIED_HIT,
   POSITION_EMPTY,
   POSITION_OCCUPIED,
-  NUM_SHIPS,
   SHIP_TYPE_1,
   SHIP_TYPE_2,
   SHIP_TYPE_3
@@ -70,8 +69,7 @@ export class Cell {
  * Keeps tracks of the player(owner) of itself.
  */
 export class ShipYard {
-  constructor(player) {
-    this.player = player;
+  constructor() {
     this.cells = [];
     this.ships = [];
     this.initializeBoard();
@@ -81,6 +79,7 @@ export class ShipYard {
    * Initialize ShipYard, reset all cells to empty
    */
   initializeBoard() {
+    this.cells = [];
     for (let j = 0; j < YARD_HEIGHT; j++) {
       for (let i = 0; i < YARD_WIDTH; i++) {
         this.cells.push(new Cell(i, j, POSITION_EMPTY, null));
@@ -110,6 +109,7 @@ export class ShipYard {
    * be rotated and checked again.
    */
   spawnShips() {
+    this.ships = [];
     const emptyCells = this.getEmptyCells();
     let numShips = 0;
     shuffleArray(emptyCells);
@@ -134,6 +134,7 @@ export class ShipYard {
 
       if (numShips >= 4) {
         // console.log("All ships have been spawned.");
+        // console.log(this.ships);
         return;
       }
     }
@@ -191,6 +192,7 @@ export class ShipYard {
       const y = shipCells[i].getY();
       const yardCell = this.getCell(x, y);
       yardCell.setStatus(POSITION_OCCUPIED);
+      yardCell.setEntity(ship);
       shipCells[i] = yardCell;
     }
     this.ships.push(ship);
@@ -229,6 +231,65 @@ export class ShipYard {
 
     if (cell.getStatus() === POSITION_EMPTY) {
       return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Called upon to check whether this position can be attacked, same Cell cannot be attacked twice in the same game.
+   */
+  isCellTargetable(x, y) {
+    const cell = this.getCell(x, y);
+    if (cell.getStatus() === POSITION_EMPTY_HIT || cell.getStatus() === POSITION_OCCUPIED_HIT) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /**
+   * Called upon to attack a Cell's position.
+   * Returns true if a Ship is hit.
+   */
+  attackCell(x, y) {
+    const cell = this.getCell(x, y);
+
+    if (cell.getStatus() === POSITION_EMPTY) {
+      cell.setStatus(POSITION_EMPTY_HIT);
+      return false;
+    } else if (cell.getStatus() === POSITION_OCCUPIED) {
+      cell.setStatus(POSITION_OCCUPIED_HIT);
+      return true;
+    }
+  }
+
+  /**
+   * Called on to check if an ship was sunk as the result of an
+   * attack on the Cell position. Return Ship.type attribute if ship was sunk;
+   * otherwise return null.
+   */
+  didAtttackSinkShip(x, y) {
+    const cell = this.getCell(x, y);
+    const ship = cell.getEntity();
+    // console.log(ship);
+    for (let i = 0; i < ship.getCells().length; i++) {
+      if (ship.cells[i].getStatus() === POSITION_OCCUPIED) {
+        return null;
+      }
+    }
+    return ship.getType();
+  }
+
+  /**
+   * Return true if all ships have been destroyed
+   */
+  allShipsDestroyed() {
+    for (let i = 0; i < this.cells.length; i++) {
+      console.log(this.cells[i].getStatus());
+      if (this.cells[i].getStatus() === POSITION_OCCUPIED) {
+        return false;
+      }
     }
 
     return true;

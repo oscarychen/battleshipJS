@@ -1,0 +1,12 @@
+.top {
+  margin: auto;
+}
+.mainContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.playerContainer {
+  display: flex;
+  flex-direction: column;
+}
