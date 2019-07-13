@@ -1,85 +1,71 @@
-import { POSITION_OCCUPIED } from "./constants";
+import {
+  SHIP_TYPE_1,
+  SHIP_TYPE_2,
+  SHIP_TYPE_3,
+  SHIP_TYPE_1_TEMPLATE,
+  SHIP_TYPE_2_TEMPLATE,
+  SHIP_TYPE_3_TEMPLATE
+} from "./constants";
 import { Cell } from "./gameBoard";
 
-export class ShipLShape {
-  constructor(x, y) {
-    this.cells = []; // list of cells that the ship occupies
-    this.initialize(x, y);
+export class Ship {
+  constructor(x, y, type) {
+    this.cells = [];
+    this.initialize(x, y, type);
   }
 
   /**
-   * Given a starting cell cordinates,generate rest of the ship cells.
-   * The ship is generately either in vertical or horizontal orientation, randomly.
+   * Return the ship as a 2D array containing x,y coordinates of each cell.
+   * Used for Test comparison purpose.
    */
-  initialize(x, y, vertical = true) {
-    if (vertical) {
-      // generate vertical ship
-      this.cells[0] = new Cell(x, y);
-      this.cells[1] = new Cell(x, y + 1);
-      this.cells[2] = new Cell(x, y + 2);
-      this.cells[3] = new Cell(x + 1, y + 2);
-    } else {
-      // generate horizontal ship
-      this.cells[0] = new Cell(x, y);
-      this.cells[1] = new Cell(x + 1, y);
-      this.cells[2] = new Cell(x + 2, y);
-      this.cells[3] = new Cell(x + 2, y - 1);
-    }
+  toArray() {
+    const arr = [];
+    this.cells.forEach(cell => {
+      arr.push(cell.toArray());
+    });
+    return arr;
   }
 
+  /**
+   * Get a list of Cell objects that make up the ship
+   */
   getCells() {
     return this.cells;
   }
-}
 
-export class ShipBlock extends ShipLShape {
+  initialize(x, y, type) {
+    // console.log("Spawning ship: ", type);
+    const template = this.getTemplate(type);
+    template.forEach(([a, b]) => {
+      this.cells.push(new Cell(x + a, y + b));
+    });
+  }
+
   /**
-   * Given a starting cell cordinates,generate rest of the ship cells.
-   * The ship is generately either in vertical or horizontal orientation, randomly.
+   * Get the template of the ship based on type
    */
-  initialize(a, b, vertical = true) {
-    const x = a;
-    const y = b;
-    if (vertical) {
-      // generate vertical ship
-      for (let i = 0; i < 8; i++) {
-        if (i === 3) {
-          // draws next column
-          x = a + 1;
-          y = b;
-        }
-        this.cells(new Cell(x, y++));
-      }
-    } else {
-      // generate horizontal ship
-      for (let i = 0; i < 8; i++) {
-        if (i === 3) {
-          // draws next row
-          x = a;
-          y = b + 1;
-        }
-        this.cells(new Cell(x++, y));
-      }
+  getTemplate(type) {
+    switch (type) {
+      case SHIP_TYPE_1:
+        return SHIP_TYPE_1_TEMPLATE;
+
+      case SHIP_TYPE_2:
+        return SHIP_TYPE_2_TEMPLATE;
+
+      case SHIP_TYPE_3:
+        return SHIP_TYPE_3_TEMPLATE;
     }
   }
-}
 
-export class ShipLine extends ShipLShape {
   /**
-   * Given a starting cell cordinates,generate rest of the ship cells.
-   * The ship is generately either in vertical or horizontal orientation, randomly.
+   * Rotates the ship 90 degress counter-clock wise
    */
-  initialize(x, y, vertical = true) {
-    if (vertical) {
-      // generate vertical ship
-      for (let i = 0; i < 4; i++) {
-        this.cells.push(new Cell(x, y++));
-      }
-    } else {
-      // generate horizontal ship
-      for (let i = 0; i < 4; i++) {
-        this.cells.push(new Cell(x++, y));
-      }
+  rotate() {
+    for (let i = 1; i < this.cells.length; i++) {
+      const x = this.cells[i].getX();
+      const y = this.cells[i].getY();
+      this.cells[i].setX(y);
+      this.cells[i].setY(-x);
     }
   }
 }

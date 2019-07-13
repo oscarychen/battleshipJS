@@ -1,5 +1,17 @@
-import { YARD_HEIGHT, YARD_WIDTH, POSITION_DAMAGED, POSITION_EMPTY, POSITION_OCCUPIED, NUM_SHIPS } from "./constants";
-import { ShipLShape, ShipLine, ShipBlock } from "./ships";
+import {
+  YARD_HEIGHT,
+  YARD_WIDTH,
+  POSITION_EMPTY_HIT,
+  POSITION_OCCUPIED_HIT,
+  POSITION_EMPTY,
+  POSITION_OCCUPIED,
+  NUM_SHIPS,
+  SHIP_TYPE_1,
+  SHIP_TYPE_2,
+  SHIP_TYPE_3
+} from "./constants";
+import { Ship } from "./ships";
+import { shuffleArray } from "./util";
 
 /**
  * Represents a grid cell in the ShipYard (gameboard space).
@@ -12,12 +24,28 @@ export class Cell {
     this.entity = ship ? ship : null; // used if the cell is part of an entity (ie. a ship)
   }
 
+  setEntity(ship) {
+    this.entity = ship;
+  }
+
+  getEntity() {
+    return this.entity;
+  }
+
   setStatus(value) {
     this.status = value;
   }
 
   getStatus() {
     return this.status;
+  }
+
+  setX(value) {
+    this.x = value;
+  }
+
+  setY(value) {
+    this.y = value;
   }
 
   getX() {
@@ -29,7 +57,11 @@ export class Cell {
   }
 
   toString() {
-    return "(" + this.x + "," + this.y + ") - " + this.getStatus();
+    return "(" + this.x + "," + this.y + ") " + this.getStatus() + ". ";
+  }
+
+  toArray() {
+    return [this.x, this.y];
   }
 }
 
@@ -42,19 +74,18 @@ export class ShipYard {
     this.player = player;
     this.cells = [];
     this.ships = [];
-    this.initialize();
+    this.initializeBoard();
   }
 
   /**
    * Initialize ShipYard, reset all cells to empty
    */
-  initialize() {
+  initializeBoard() {
     for (let j = 0; j < YARD_HEIGHT; j++) {
       for (let i = 0; i < YARD_WIDTH; i++) {
         this.cells.push(new Cell(i, j, POSITION_EMPTY, null));
       }
     }
-    this.spawnShips();
   }
 
   /**
@@ -71,100 +102,60 @@ export class ShipYard {
   }
 
   /**
-   * Helper method to shuffle array in-place
+   * Need to be explicitly called upon after creating ShipYard object.
+   * Creates new Ship objects using new Cell objects.
+   * Compare the Cell objects from Ship and ShipYard with the same coordinates,
+   * and only add the Ship if there is no status conflicts in any of the Cells.
+   * The spawn position is random, and if there is a Cell conflict, the Ship would
+   * be rotated and checked again.
    */
-  shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-  }
-
   spawnShips() {
-    let ships = [];
-    let hasNull = true;
-
-    while (hasNull === true) {
-      // process to spawn 4 ships
-      ships.push(this.spawnShipLShape());
-      // ships.push(this.spawnShipBlock());
-      // ships.push(this.spawnShipLine());
-      // ships.push(this.spawnShipLine());
-
-      for (let i = 0; i < ships.length; i++) {
-        //check the 4 ships spawned
-        if (ships[i] === null) {
-          // if any of the ships failed to spawn, restart spawning process
-          hasNull = true;
-          ships = [];
-        } else {
-          hasNull = false;
-        }
-      }
-    }
-    console.log("Spawning ships success.");
-  }
-
-  /**
-   * Spawn a L-shaped ship
-   */
-  spawnShipLShape() {
     const emptyCells = this.getEmptyCells();
-    this.shuffleArray(emptyCells);
+    let numShips = 0;
+    shuffleArray(emptyCells);
 
+    // using each empty cell position as spawning point for a ship
     for (let i = 0; i < emptyCells.length; i++) {
-      const cell = emptyCells[i];
-      let ship = new ShipLShape(4, 5);
-      if (this.spawnShipHasCollision(ship)) {
-        // if collision, try orient ship horizontally
-        ship = new ShipL(cell.getX(), cell.getY(), false);
-      } else {
-        // found available ship position, return ship
-        return ship;
+      const x = emptyCells[i].getX();
+      const y = emptyCells[i].getY();
+      const ship = new Ship(x, y, this.spawnShipTypeDecider(numShips));
+      let rotateCounter = 0;
+      // if the spawned ship has collision, rotate up to 3 times
+      while (this.spawnShipHasCollision(ship) && rotateCounter <= 3) {
+        ship.rotate();
+        rotateCounter++;
       }
-    }
-    return null; // returns null if ship spawning impossible
-  }
 
-  /**
-   * Spawn a Block-shaped ship
-   */
-  spawnShipBlock() {
-    const emptyCells = this.getEmptyCells();
-    this.shuffleArray(emptyCells);
+      //the new ship has no collission issue and can be added to the ShipYard
+      if (!this.spawnShipHasCollision(ship)) {
+        this.addShipToYard(ship);
+        numShips++;
+      }
 
-    for (let i = 0; i < emptyCells.length; i++) {
-      const cell = emptyCells[i];
-      let ship = new ShipBlock(cell.getX(), cell.getY());
-      if (this.spawnShipHasCollision(ship)) {
-        // if collision, try orient ship horizontally
-        ship = new ShipBlock(cell.getX(), cell.getY(), false);
-      } else {
-        // found available ship position, return ship
-        return ship;
+      if (numShips >= 4) {
+        // console.log("All ships have been spawned.");
+        return;
       }
     }
   }
 
   /**
-   * Spawn a Line-shaped ship
+   * Helper method used by spawnShips(), takes the sequence number of the ship being spawned,
+   * return the type of ship to be spawned.
    */
-  spawnShipLine() {
-    const emptyCells = this.getEmptyCells();
-    this.shuffleArray(emptyCells);
-
-    for (let i = 0; i < emptyCells.length; i++) {
-      const cell = emptyCells[i];
-      let ship = new ShipLine(cell.getX(), cell.getY());
-      if (this.spawnShipHasCollision(ship)) {
-        // if collision, try orient ship horizontally
-        ship = new ShipLine(cell.getX(), cell.getY(), false);
-      } else {
-        // found available ship position, return ship
-        return ship;
-      }
+  spawnShipTypeDecider(numShips) {
+    switch (numShips) {
+      case 0:
+        return SHIP_TYPE_1;
+      case 1:
+        return SHIP_TYPE_2;
+      case 2:
+        return SHIP_TYPE_3;
+      case 3:
+        return SHIP_TYPE_3;
+      default:
+        console.log("Error: cannot spawn more than 4 ships.");
+        break;
     }
   }
 
@@ -176,6 +167,7 @@ export class ShipYard {
     const cells = Array.from(ship.getCells());
 
     for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
       const x = cell.getX();
       const y = cell.getY();
       if (this.isOccupied(x, y)) {
@@ -184,6 +176,24 @@ export class ShipYard {
       }
     }
     return false; // no collision found
+  }
+
+  /**
+   * Takes a Ship object (which has been previously checked to be ready to add to ShipYard),
+   * Replace the Cell objects in the Ship with the corresponding Cell objects from ShipYared.
+   * Essentially making sure the Ship contains Cell object pointers to the same objects that the ShipYard
+   * is pointing at, as the Ship is added to the ShipYard.
+   */
+  addShipToYard(ship) {
+    const shipCells = ship.getCells();
+    for (let i = 0; i < shipCells.length; i++) {
+      const x = shipCells[i].getX();
+      const y = shipCells[i].getY();
+      const yardCell = this.getCell(x, y);
+      yardCell.setStatus(POSITION_OCCUPIED);
+      shipCells[i] = yardCell;
+    }
+    this.ships.push(ship);
   }
 
   /**
@@ -196,10 +206,10 @@ export class ShipYard {
   }
 
   /**
-   * Helper method that returns the Cell by providing x and y cordinates
+   * Helper method that returns the Cell object by searching x and y cordinates
    */
   getCell(x, y) {
-    const cell = this.cells.find(item => item.x == x && item.y == y);
+    const cell = this.cells.find(item => item.getX() === x && item.getY() === y);
     return cell;
   }
 
@@ -217,7 +227,7 @@ export class ShipYard {
       return true;
     }
 
-    if (cell.getStatus === POSITION_EMPTY) {
+    if (cell.getStatus() === POSITION_EMPTY) {
       return false;
     }
 
