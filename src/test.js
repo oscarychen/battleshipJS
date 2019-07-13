@@ -1,4 +1,3 @@
-import { Player } from "./player";
 import { Ship } from "./ships";
 import { SHIP_TYPE_1, POSITION_DAMAGED, POSITION_OCCUPIED, POSITION_OCCUPIED_HIT } from "./constants";
 import { ShipYard } from "./gameBoard";
