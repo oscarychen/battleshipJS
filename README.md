@@ -5,4 +5,6 @@ Single-client battleship game implemented in pure JavaScript
 2. npm install
 3. npm run
 
+![](diagram/diagram.png)
+
 ![](https://media.giphy.com/media/VFSf6JkXjkGWO5tgjl/giphy.gif)
