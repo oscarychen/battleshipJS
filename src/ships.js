@@ -8,6 +8,11 @@ import {
 } from "./constants";
 import { Cell } from "./gameBoard";
 
+/**
+ * This class is used primarily to help spawning ships in ShipYard.
+ * However, ShipYard does not keep track of Ship objects and only creates
+ * Ship objects during the spawning process, and disposes the Ship objects after.
+ */
 export class Ship {
   constructor(x, y, type) {
     this.type = type;

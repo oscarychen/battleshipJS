@@ -71,7 +71,6 @@ export class Cell {
 export class ShipYard {
   constructor() {
     this.cells = [];
-    this.ships = [];
     this.initializeBoard();
   }
 
@@ -109,7 +108,6 @@ export class ShipYard {
    * be rotated and checked again.
    */
   spawnShips() {
-    this.ships = [];
     const emptyCells = this.getEmptyCells();
     let numShips = 0;
     shuffleArray(emptyCells);
@@ -128,7 +126,7 @@ export class ShipYard {
 
       //the new ship has no collission issue and can be added to the ShipYard
       if (!this.spawnShipHasCollision(ship)) {
-        this.addShipToYard(ship);
+        this.addShipToYard(ship, numShips);
         numShips++;
       }
 
@@ -181,21 +179,20 @@ export class ShipYard {
 
   /**
    * Takes a Ship object (which has been previously checked to be ready to add to ShipYard),
-   * Replace the Cell objects in the Ship with the corresponding Cell objects from ShipYared.
-   * Essentially making sure the Ship contains Cell object pointers to the same objects that the ShipYard
-   * is pointing at, as the Ship is added to the ShipYard.
+   * Since it is unecessary to have Ship keeping track of its Cells (as ShipYard already does),
+   * Ship's cell reference is removed after updating the Cell on the ShipYard.
+   * The Cell object will hold reference to the Ship, which can be used later to detect if a Ship has sunk.
    */
-  addShipToYard(ship) {
+  addShipToYard(ship, shipNumber) {
     const shipCells = ship.getCells();
     for (let i = 0; i < shipCells.length; i++) {
       const x = shipCells[i].getX();
       const y = shipCells[i].getY();
       const yardCell = this.getCell(x, y);
       yardCell.setStatus(POSITION_OCCUPIED);
-      yardCell.setEntity(ship);
-      shipCells[i] = yardCell;
+      yardCell.setEntity(shipNumber);
+      shipCells[i] = undefined;
     }
-    this.ships.push(ship);
   }
 
   /**
@@ -272,12 +269,14 @@ export class ShipYard {
   didAtttackSinkShip(x, y) {
     const cell = this.getCell(x, y);
     const ship = cell.getEntity();
-    // console.log(ship);
-    for (let i = 0; i < ship.getCells().length; i++) {
-      if (ship.cells[i].getStatus() === POSITION_OCCUPIED) {
+
+    for (let i = 0; i < this.cells.length; i++) {
+      const aCell = this.cells[i];
+      if (aCell.entity === ship && aCell.getStatus() === POSITION_OCCUPIED) {
         return null;
       }
     }
+
     return ship.getType();
   }
 
@@ -286,12 +285,25 @@ export class ShipYard {
    */
   allShipsDestroyed() {
     for (let i = 0; i < this.cells.length; i++) {
-      console.log(this.cells[i].getStatus());
+      // console.log(this.cells[i].getStatus());
       if (this.cells[i].getStatus() === POSITION_OCCUPIED) {
         return false;
       }
     }
 
     return true;
+  }
+
+  /**
+   * Used to re-populate ShipYard using data from store
+   */
+  recreateShipYardFromData(data) {
+    data.cells.forEach(dataCell => {
+      const x = dataCell.x;
+      const y = dataCell.y;
+      const yardCell = this.getCell(x, y);
+      yardCell.setStatus(dataCell.status);
+      yardCell.setEntity(dataCell.entity);
+    });
   }
 }

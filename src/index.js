@@ -14,10 +14,6 @@ import {
 import { Test } from "./test";
 import { getClickedCellPos } from "./util";
 
-const yardA = new ShipYard();
-const yardB = new ShipYard();
-const painterA = new Painter(CANVAS_HTML_ID_A, yardA);
-const painterB = new Painter(CANVAS_HTML_ID_B, yardB);
 const canvasA = document.getElementById(CANVAS_HTML_ID_A);
 const canvasB = document.getElementById(CANVAS_HTML_ID_B);
 const button = document.getElementById(START_BUTTON);
@@ -25,11 +21,18 @@ const p1ScoreEl = document.getElementById(P1_SCORE_HTML_ID);
 const p2ScoreEl = document.getElementById(P2_SCORE_HTML_ID);
 const p1ShotsEl = document.getElementById(P1_SHOTS_HTML_ID);
 const p2ShotsEl = document.getElementById(P2_SHOTS_HTML_ID);
-let turn = -1;
-let playerOneScore = 0;
-let playerTwoScore = 0;
-let playerOneShots = 0;
-let playerTwoShots = 0;
+
+const yardA = new ShipYard();
+const yardB = new ShipYard();
+const painterA = new Painter(CANVAS_HTML_ID_A, yardA);
+const painterB = new Painter(CANVAS_HTML_ID_B, yardB);
+let turn;
+let playerOneScore;
+let playerTwoScore;
+let playerOneShots;
+let playerTwoShots;
+
+loadGameState();
 
 canvasA.addEventListener("click", e => {
   if (turn < 0) {
@@ -127,6 +130,7 @@ function playerTwoPostMoveChecks(x, y, outcome) {
       alert("You have damaged an enemy ship.");
     }
   }
+  saveGameState();
 }
 
 /**
@@ -166,6 +170,7 @@ function playerOnePostMoveChecks(x, y, outcome) {
       alert("You have damaged an enemy ship.");
     }
   }
+  saveGameState();
 }
 
 /**
@@ -214,8 +219,45 @@ function checkWinningConditions() {
     turn = -1;
     return true;
   }
-  console.log("checkWinningCondition returning false");
+
   return false;
+}
+
+/**
+ * Save game data to local data store
+ */
+function saveGameState() {
+  const gameState = {
+    yardA,
+    yardB,
+    turn,
+    playerOneScore,
+    playerTwoScore,
+    playerOneShots,
+    playerTwoShots
+  };
+  localStorage.setItem("battleshipJS", JSON.stringify(gameState));
+}
+
+/**
+ * Load game data from local data store
+ */
+function loadGameState() {
+  const gameState = JSON.parse(localStorage.getItem("battleshipJS"));
+
+  yardA.recreateShipYardFromData(gameState.yardA);
+  yardB.recreateShipYardFromData(gameState.yardB);
+  turn = gameState.turn || -1;
+  playerOneScore = gameState.playerOneScore || 0;
+  playerTwoScore = gameState.playerTwoScore || 0;
+  playerOneShots = gameState.playerOneShots || 0;
+  playerTwoShots = gameState.playerTwoShots || 0;
+
+  if (turn >= 0) {
+    button.innerHTML = "Restart";
+    painterA.draw();
+    painterB.draw();
+  }
 }
 
 // new Test();

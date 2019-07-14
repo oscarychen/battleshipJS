@@ -1,4 +1,5 @@
 import { CELL_SIZE } from "./constants";
+import { ShipYard } from "./gameBoard";
 
 /**
  * Compare x,y values in a 2D array, return true if all values are the same
