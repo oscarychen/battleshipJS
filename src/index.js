@@ -26,11 +26,11 @@ const yardA = new ShipYard();
 const yardB = new ShipYard();
 const painterA = new Painter(CANVAS_HTML_ID_A, yardA);
 const painterB = new Painter(CANVAS_HTML_ID_B, yardB);
-let turn;
-let playerOneScore;
-let playerTwoScore;
-let playerOneShots;
-let playerTwoShots;
+let turn = -1;
+let playerOneScore = 0;
+let playerTwoScore = 0;
+let playerOneShots = 0;
+let playerTwoShots = 0;
 
 loadGameState();
 
@@ -211,11 +211,11 @@ function checkWinningConditions() {
     turn = -1;
     return true;
   } else if (yardA.allShipsDestroyed()) {
-    alert("Player 1 won!");
+    alert("Player 2 won!");
     turn = -1;
     return true;
   } else if (yardB.allShipsDestroyed()) {
-    alert("Player 2 won!");
+    alert("Player 1 won!");
     turn = -1;
     return true;
   }
@@ -245,13 +245,24 @@ function saveGameState() {
 function loadGameState() {
   const gameState = JSON.parse(localStorage.getItem("battleshipJS"));
 
+  console.log(gameState);
+
+  if (gameState !== null) {
+    parseGameState(gameState);
+  } else {
+    yardA.spawnShips();
+    yardB.spawnShips();
+  }
+}
+
+function parseGameState(gameState) {
   yardA.recreateShipYardFromData(gameState.yardA);
   yardB.recreateShipYardFromData(gameState.yardB);
-  turn = gameState.turn || -1;
-  playerOneScore = gameState.playerOneScore || 0;
-  playerTwoScore = gameState.playerTwoScore || 0;
-  playerOneShots = gameState.playerOneShots || 0;
-  playerTwoShots = gameState.playerTwoShots || 0;
+  turn = gameState.turn;
+  playerOneScore = gameState.playerOneScore;
+  playerTwoScore = gameState.playerTwoScore;
+  playerOneShots = gameState.playerOneShots;
+  playerTwoShots = gameState.playerTwoShots;
 
   if (turn >= 0) {
     button.innerHTML = "Restart";

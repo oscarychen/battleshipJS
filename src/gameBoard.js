@@ -268,16 +268,18 @@ export class ShipYard {
    */
   didAtttackSinkShip(x, y) {
     const cell = this.getCell(x, y);
-    const ship = cell.getEntity();
+    const shipNum = cell.getEntity();
 
     for (let i = 0; i < this.cells.length; i++) {
       const aCell = this.cells[i];
-      if (aCell.entity === ship && aCell.getStatus() === POSITION_OCCUPIED) {
+      if (aCell.entity === shipNum && aCell.getStatus() === POSITION_OCCUPIED) {
         return null;
       }
     }
 
-    return ship.getType();
+    const shipType = this.spawnShipTypeDecider(shipNum);
+
+    return shipType;
   }
 
   /**
