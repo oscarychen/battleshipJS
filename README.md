@@ -8,4 +8,4 @@ A simple battleship game implemented in pure JavaScript.
 
 ![](diagram/diagram.png)
 
-![](https://media.giphy.com/media/VFSf6JkXjkGWO5tgjl/giphy.gif)
+![](demo.gif)
