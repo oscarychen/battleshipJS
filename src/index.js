@@ -22,6 +22,22 @@ const p2ScoreEl = document.getElementById(P2_SCORE_HTML_ID);
 const p1ShotsEl = document.getElementById(P1_SHOTS_HTML_ID);
 const p2ShotsEl = document.getElementById(P2_SHOTS_HTML_ID);
 
+const modal = document.getElementById("myModal");
+const span = document.getElementsByClassName("close")[0];
+
+/**
+ * Used to show a modal message with header, body, and footer texts.
+ */
+function displayTurnMessage(header, body, footer) {
+  document.getElementById("modal-header-text").innerHTML = header ? header : "";
+  document.getElementById("modal-body-text").innerHTML = body ? body : "";
+  document.getElementById("modal-footer-text").innerHTML = footer ? footer : "";
+  modal.style.display = "block";
+}
+function setGameMessage(msg) {
+  document.getElementById("gameMessage").innerHTML = msg;
+}
+
 const yardA = new ShipYard();
 const yardB = new ShipYard();
 const painterA = new Painter(CANVAS_HTML_ID_A, yardA);
@@ -31,6 +47,27 @@ let playerOneScore = 0;
 let playerTwoScore = 0;
 let playerOneShots = 0;
 let playerTwoShots = 0;
+
+/**
+ * Called when modal close button pressed
+ */
+span.onclick = function() {
+  modal.style.display = "none";
+
+  painterA.draw();
+  painterB.draw();
+};
+/**
+ * Called to close modal when clicked outside of modal
+ */
+window.onclick = function(event) {
+  if (event.target === modal) {
+    modal.style.display = "none";
+
+    painterA.draw();
+    painterB.draw();
+  }
+};
 
 loadGameState();
 
@@ -63,13 +100,9 @@ function playerOneTurn() {
   painterA.undraw();
   painterB.undraw();
 
-  setTimeout(function() {
-    alert("Player 1's turn.");
-    painterA.setMode(DISPLAY_SELF);
-    painterB.setMode(DISPLAY_ENEMY);
-    painterA.draw();
-    painterB.draw();
-  }, 250);
+  displayTurnMessage("Turn switch:", "Player 1's turn next..", "");
+  painterA.setMode(DISPLAY_SELF);
+  painterB.setMode(DISPLAY_ENEMY);
 }
 
 /**
@@ -78,14 +111,9 @@ function playerOneTurn() {
 function playerTwoTurn() {
   painterA.undraw();
   painterB.undraw();
-
-  setTimeout(function() {
-    alert("Player 2's turn.");
-    painterA.setMode(DISPLAY_ENEMY);
-    painterB.setMode(DISPLAY_SELF);
-    painterA.draw();
-    painterB.draw();
-  }, 250);
+  displayTurnMessage("Turn switch:", "Player 2's turn next..", "");
+  painterA.setMode(DISPLAY_ENEMY);
+  painterB.setMode(DISPLAY_SELF);
 }
 
 /**
@@ -97,7 +125,7 @@ function playerTwoMove(x, y) {
   }
   // if the cell is already hit previously, cannot attack same cell twice
   if (!yardA.isCellTargetable(x, y)) {
-    alert("You cannot attack the same location again.");
+    displayTurnMessage("Try again...", "You cannot attack the same location again.", "Player 2's move..");
     return;
   }
 
@@ -113,7 +141,7 @@ function playerTwoMove(x, y) {
       return;
     }
     playerOneTurn();
-  }, 250);
+  }, 500);
 }
 
 /**
@@ -121,14 +149,21 @@ function playerTwoMove(x, y) {
  */
 function playerTwoPostMoveChecks(x, y, outcome) {
   if (outcome) {
+    // if a ship was hit
     playerTwoScore++;
     updateStats();
     const sunkShipType = yardA.didAtttackSinkShip(x, y);
     if (sunkShipType !== null) {
-      alert("Congratulations, You sunk an enemy " + sunkShipType);
+      // if a ship sunk
+      // alert("Congratulations, You sunk an enemy " + sunkShipType);
+      setGameMessage("Player 2 sunk Player 1's " + sunkShipType);
     } else {
-      alert("You have damaged an enemy ship.");
+      // alert("You have damaged an enemy ship.");
+      setGameMessage("Player 2 successfully targeted Player 1's ship.");
     }
+  } else {
+    // if no ship was hit
+    setGameMessage("");
   }
   saveGameState();
 }
@@ -142,7 +177,7 @@ function playerOneMove(x, y) {
   }
   // if the cell is already hit previously, cannot attack same cell twice
   if (!yardB.isCellTargetable(x, y)) {
-    alert("You cannot attack the same location again.");
+    displayTurnMessage("Try again...", "You cannot attack the same location again.", "Player 1's move..");
     return;
   }
 
@@ -155,20 +190,27 @@ function playerOneMove(x, y) {
   setTimeout(function() {
     playerOnePostMoveChecks(x, y, outcome);
     playerTwoTurn();
-  }, 250);
+  }, 500);
 }
 
 function playerOnePostMoveChecks(x, y, outcome) {
   if (outcome) {
+    // if a ship was hit
     playerOneScore++;
     updateStats();
     const sunkShipType = yardB.didAtttackSinkShip(x, y);
 
     if (sunkShipType !== null) {
-      alert("Congratulations, you sunk an enemy " + sunkShipType);
+      // if a ship sunk
+      // alert("Congratulations, you sunk an enemy " + sunkShipType);
+      setGameMessage("Player 1 sunk Player 2's " + sunkShipType);
     } else {
-      alert("You have damaged an enemy ship.");
+      // alert("You have damaged an enemy ship.");
+      setGameMessage("Player 1 successfully targeted Player 2's ship.");
     }
+  } else {
+    // if not ship was hit
+    setGameMessage("");
   }
   saveGameState();
 }
@@ -207,15 +249,18 @@ function updateStats() {
  */
 function checkWinningConditions() {
   if (yardA.allShipsDestroyed() && yardB.allShipsDestroyed()) {
-    alert("Game tie.");
+    // alert("Game tie.");
+    displayTurnMessage("Game Over", "Nobody wins, just like the real war.");
     turn = -1;
     return true;
   } else if (yardA.allShipsDestroyed()) {
-    alert("Player 2 won!");
+    // alert("Player 2 won!");
+    displayTurnMessage("Game Over", "Player 2 won!");
     turn = -1;
     return true;
   } else if (yardB.allShipsDestroyed()) {
-    alert("Player 1 won!");
+    // alert("Player 1 won!");
+    displayTurnMessage("Game Over", "Player 1 won!");
     turn = -1;
     return true;
   }
@@ -245,8 +290,6 @@ function saveGameState() {
 function loadGameState() {
   const gameState = JSON.parse(localStorage.getItem("battleshipJS"));
 
-  console.log(gameState);
-
   if (gameState !== null) {
     parseGameState(gameState);
   } else {
@@ -255,6 +298,9 @@ function loadGameState() {
   }
 }
 
+/**
+ * Called upon when loading game from store to parse data
+ */
 function parseGameState(gameState) {
   yardA.recreateShipYardFromData(gameState.yardA);
   yardB.recreateShipYardFromData(gameState.yardB);

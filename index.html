@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="index.css" />
-    <title>BattleshipJS</title>
+    <h2>BattleshipJS</h2>
   </head>
+
   <body>
     <div class="top">
-      <p>Battleships</p>
+      <p id="gameMessage">Battleships</p>
       <button id="startGame">Start</button>
     </div>
 
@@ -25,6 +26,26 @@
         <canvas id="gameCanvasB" width="400" height="400" style="border:1px solid #c3c3c3;"> </canvas>
       </div>
     </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close">&times;</span>
+          <h2 id="modal-header-text"></h2>
+        </div>
+      <div class="modal-body">
+        <p id="modal-body-text"></p>
+      </div>
+      <div class="modal-footer">
+        <h3 id="modal-footer-text"></h3>
+      </div>
+    </div>
+  
+  </div>
+    </div>
+
     <script src="./build/bundle.js"></script>
   </body>
 </html>

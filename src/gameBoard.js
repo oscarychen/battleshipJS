@@ -118,6 +118,13 @@ export class ShipYard {
       const y = emptyCells[i].getY();
       const ship = new Ship(x, y, this.spawnShipTypeDecider(numShips));
       let rotateCounter = 0;
+
+      const initialOrientation = Math.floor(Math.random() * 4);
+      // initializethe ship to a random rotation
+      for (let i = 0; i < initialOrientation; i++) {
+        ship.rotate();
+      }
+
       // if the spawned ship has collision, rotate up to 3 times
       while (this.spawnShipHasCollision(ship) && rotateCounter <= 3) {
         ship.rotate();
