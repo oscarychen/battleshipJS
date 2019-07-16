@@ -34,6 +34,15 @@ function displayTurnMessage(header, body, footer) {
   document.getElementById("modal-footer-text").innerHTML = footer ? footer : "";
   modal.style.display = "block";
 }
+
+function getTurnMessage() {
+  if (turn % 2 == 0) {
+    return "This is Player One's turn.";
+  } else {
+    return "this is Player Two's turn.";
+  }
+}
+
 function setGameMessage(msg) {
   document.getElementById("gameMessage").innerHTML = msg;
 }
@@ -242,6 +251,7 @@ function updateStats() {
   p2ScoreEl.innerHTML = "Score: " + playerTwoScore;
   p1ShotsEl.innerHTML = "Shots Fired: " + playerOneShots;
   p2ShotsEl.innerHTML = "Shots Fired: " + playerTwoShots;
+  document.getElementById("turnMessage").innerHTML = getTurnMessage() ? getTurnMessage() : "";
 }
 
 /**
@@ -315,6 +325,8 @@ function parseGameState(gameState) {
     painterA.draw();
     painterB.draw();
   }
+
+  updateStats();
 }
 
 // new Test();
